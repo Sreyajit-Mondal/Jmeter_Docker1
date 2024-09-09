@@ -1,0 +1,28 @@
+name: JMeter CI/CD
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  run_jmeter:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+
+      - name: Build Docker Image
+        run: docker build -t jmeter .
+
+      - name: Run JMeter test and copy results
+        run: |
+          docker run --rm -v ${{ github.workspace }}/results:/jmeter/results jmeter
+          cp results/results2.csv ${{ github.workspace }}/results2.csv
+
+      - name: Archive JTL Results
+        uses: actions/upload-artifact@v2
+        with:
+          name: jmeter-results
+          path: results/results2.csv
